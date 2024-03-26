@@ -1,0 +1,30 @@
+name: Static code analysis (Prettier, ESLint, TypeScript)
+
+on:
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  static-code-analysis:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Use Node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version: 20
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Check formatting with Prettier
+        run: npm run prettier:check
+
+      - name: Check lint with eslint
+        run: npm run lint
+
+      - name: Check types with typescript
+        run: npm run typescript:check
