@@ -1,19 +1,72 @@
 import { css } from "@emotion/react";
 import React from "react";
+import { Entity, EntityTypeId, entityTypes, Position } from "./EditPage.tsx";
 
 interface CanvasProps {
-  selectedToolId: string | null;
+  selectedToolId: EntityTypeId | null;
+  placeEntity: (entityTypeId: EntityTypeId, position: Position) => void;
+  entities: Entity[];
 }
 
-export const Canvas: React.FC<CanvasProps> = () => {
+const CANVAS_ID = "server_room_canvas_element_id";
+
+export const Canvas: React.FC<CanvasProps> = (props) => {
+  const { entities, placeEntity, selectedToolId } = props;
+
   return (
     <div
+      id={CANVAS_ID}
       css={css`
         border: 3px solid green;
         overflow: hidden;
+        position: relative; // ancestor has position: relative, so all absolute positioned children are relative to this
       `}
+      onClick={(event) => {
+        if (selectedToolId === null) {
+          return;
+        }
+        const canvasElement = document.getElementById(CANVAS_ID);
+        if (!canvasElement) {
+          return;
+        }
+
+        const canvasRect = canvasElement.getBoundingClientRect();
+        const positionRelativeToCanvas: Position = {
+          x: event.clientX - canvasRect.left,
+          y: event.clientY - canvasRect.top,
+        };
+        placeEntity(selectedToolId, positionRelativeToCanvas);
+      }}
     >
       <CanvasDotsGrid />
+      {entities.map((entity, index) => {
+        const entityType = entityTypes[entity.toolId];
+        const width = 40; // might be dynamic later
+        const height = 40; // might be dynamic later
+
+        // TODO: change key to something other than index
+        return (
+          <div
+            key={index}
+            css={css`
+              position: absolute;
+              left: ${entity.position.x - width / 2}px;
+              top: ${entity.position.y - height / 2}px;
+              width: ${width}px;
+              height: ${height}px;
+            `}
+          >
+            <img
+              src={entityType.icon}
+              alt={entityType.icon}
+              css={css`
+                height: 100%;
+                width: 100%;
+              `}
+            />
+          </div>
+        );
+      })}
     </div>
   );
 };
@@ -56,6 +109,8 @@ const CanvasDotsGridWithoutMemo: React.FC = () => {
               css={css`
                 font-size: 24px;
                 color: #999999;
+                cursor: default;
+                user-select: none;
               `}
             >
               •
