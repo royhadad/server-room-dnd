@@ -41,8 +41,8 @@ export const Canvas: React.FC<CanvasProps> = (props) => {
       <CanvasDotsGrid />
       {entities.map((entity, index) => {
         const entityType = entityTypes[entity.toolId];
-        const width = 40; // might be dynamic later
-        const height = 40; // might be dynamic later
+        const width = 80; // might be dynamic later
+        const height = 80; // might be dynamic later
 
         // TODO: change key to something other than index
         return (
@@ -56,14 +56,7 @@ export const Canvas: React.FC<CanvasProps> = (props) => {
               height: ${height}px;
             `}
           >
-            <img
-              src={entityType.icon}
-              alt={entityType.icon}
-              css={css`
-                height: 100%;
-                width: 100%;
-              `}
-            />
+            <img src={entityType.icon} alt={entityType.icon} />
           </div>
         );
       })}
