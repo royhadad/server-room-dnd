@@ -1,8 +1,11 @@
+import React, { useState } from "react";
 import { css } from "@emotion/react";
 import { Canvas } from "./Canvas.tsx";
 import { Toolbar } from "./Toolbar.tsx";
 
 export const EditPage: React.FC = () => {
+  const [selectedToolId, setSelectedToolId] = useState<string | null>(null);
+
   return (
     <div
       css={css`
@@ -12,8 +15,11 @@ export const EditPage: React.FC = () => {
         display: flex;
       `}
     >
-      <Toolbar />
-      <Canvas />
+      <Toolbar
+        selectedToolId={selectedToolId}
+        setSelectedToolId={setSelectedToolId}
+      />
+      <Canvas selectedToolId={selectedToolId} />
     </div>
   );
 };

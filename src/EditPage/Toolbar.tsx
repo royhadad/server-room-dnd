@@ -3,8 +3,13 @@ import { css } from "@emotion/react";
 import serverRackIcon from "../assets/server-rack-icon.svg";
 import { Tooltip, Button } from "@mui/material";
 
-export const Toolbar: React.FC = () => {
-  const [selectedToolId, setSelectedToolId] = React.useState<string>("server");
+interface ToolbarProps {
+  selectedToolId: string | null;
+  setSelectedToolId: (toolId: string | null) => void;
+}
+
+export const Toolbar: React.FC<ToolbarProps> = (props) => {
+  const { selectedToolId, setSelectedToolId } = props;
 
   return (
     <div
@@ -16,27 +21,6 @@ export const Toolbar: React.FC = () => {
         justify-content: flex-start;
       `}
     >
-      <ToolItem
-        id={"full-cabinet"}
-        name={"Full Cabinet"}
-        icon={serverRackIcon}
-        selectedToolId={selectedToolId}
-        setSelectedToolId={setSelectedToolId}
-      />
-      <ToolItem
-        id={"half-cabinet"}
-        name={"Half Cabinet"}
-        icon={serverRackIcon}
-        selectedToolId={selectedToolId}
-        setSelectedToolId={setSelectedToolId}
-      />
-      <ToolItem
-        id={"quarter-cabinet"}
-        name={"Quarter Cabinet"}
-        icon={serverRackIcon}
-        selectedToolId={selectedToolId}
-        setSelectedToolId={setSelectedToolId}
-      />
       <ToolItem
         id={"wall"}
         name={"Wall"}
@@ -58,6 +42,27 @@ export const Toolbar: React.FC = () => {
         selectedToolId={selectedToolId}
         setSelectedToolId={setSelectedToolId}
       />
+      <ToolItem
+        id={"full-cabinet"}
+        name={"Full Cabinet"}
+        icon={serverRackIcon}
+        selectedToolId={selectedToolId}
+        setSelectedToolId={setSelectedToolId}
+      />
+      <ToolItem
+        id={"half-cabinet"}
+        name={"Half Cabinet"}
+        icon={serverRackIcon}
+        selectedToolId={selectedToolId}
+        setSelectedToolId={setSelectedToolId}
+      />
+      <ToolItem
+        id={"quarter-cabinet"}
+        name={"Quarter Cabinet"}
+        icon={serverRackIcon}
+        selectedToolId={selectedToolId}
+        setSelectedToolId={setSelectedToolId}
+      />
     </div>
   );
 };
@@ -66,8 +71,8 @@ interface ToolItemProps {
   id: string;
   name: string;
   icon: string;
-  selectedToolId: string;
-  setSelectedToolId: (toolId: string) => void;
+  selectedToolId: string | null;
+  setSelectedToolId: (toolId: string | null) => void;
 }
 const ToolItem: React.FC<ToolItemProps> = (props) => {
   const isSelected = props.id === props.selectedToolId;
@@ -87,7 +92,13 @@ const ToolItem: React.FC<ToolItemProps> = (props) => {
             ${isSelected ? "background-color: #d2d2d2;" : ""}
           }
         `}
-        onClick={() => props.setSelectedToolId(props.id)}
+        onClick={() => {
+          if (isSelected) {
+            props.setSelectedToolId(null);
+          } else {
+            props.setSelectedToolId(props.id);
+          }
+        }}
       >
         <img
           src={props.icon}
