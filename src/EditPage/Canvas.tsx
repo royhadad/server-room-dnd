@@ -18,6 +18,7 @@ export const Canvas: React.FC<CanvasProps> = (props) => {
   const { entities, placeEntity, selectedToolId } = props;
 
   const onCanvasClick = (event: React.MouseEvent<HTMLDivElement>) => {
+    event.stopPropagation();
     if (selectedToolId === null) {
       return;
     }
