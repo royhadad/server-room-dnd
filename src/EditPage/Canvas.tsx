@@ -19,6 +19,7 @@ export const Canvas: React.FC<CanvasProps> = () => {
 };
 
 // extracted the inner grid to memoize the rendering, due to a real life *measured* performance problem
+// consider changing this to an svg or something else instead of an array of divs, for additional performance improvement
 
 const NUMBER_OF_DOTS = 100;
 const GAP_BETWEEN_DOTS_IN_PIXELS = 40;
