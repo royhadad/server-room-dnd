@@ -89,7 +89,7 @@ const ToolItem: React.FC<ToolItemProps> = (props) => {
           border-radius: 0;
           background: ${isSelected ? "#d2d2d2" : "initial"};
           &.MuiButton-root:hover {
-            ${isSelected ? "background-color: #d2d2d2;" : ""}
+            background-color: #d2d2d2;
           }
         `}
         onClick={() => {
