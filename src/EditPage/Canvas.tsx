@@ -10,6 +10,10 @@ interface CanvasProps {
 
 const CANVAS_ID = "server_room_canvas_element_id";
 
+function roundToTheNearest10(value: number): number {
+  return Math.round(value / 10) * 10;
+}
+
 export const Canvas: React.FC<CanvasProps> = (props) => {
   const { entities, placeEntity, selectedToolId } = props;
 
@@ -32,8 +36,8 @@ export const Canvas: React.FC<CanvasProps> = (props) => {
 
         const canvasRect = canvasElement.getBoundingClientRect();
         const positionRelativeToCanvas: Position = {
-          x: event.clientX - canvasRect.left,
-          y: event.clientY - canvasRect.top,
+          x: roundToTheNearest10(event.clientX - canvasRect.left),
+          y: roundToTheNearest10(event.clientY - canvasRect.top),
         };
         placeEntity(selectedToolId, positionRelativeToCanvas);
       }}
