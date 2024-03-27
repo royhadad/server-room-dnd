@@ -1,10 +1,17 @@
 import { css } from "@emotion/react";
 import React from "react";
 import { Entity, EntityTypeId, entityTypes, Position } from "./EditPage.tsx";
+import {
+  DndContext,
+  DragEndEvent,
+  useDraggable,
+  useDroppable,
+} from "@dnd-kit/core";
 
 interface CanvasProps {
   selectedToolId: EntityTypeId | null;
   placeEntity: (entityTypeId: EntityTypeId, position: Position) => void;
+  setEntities: React.Dispatch<React.SetStateAction<Entity[]>>
   entities: Entity[];
 }
 
@@ -15,7 +22,11 @@ function roundToTheNearest10(value: number): number {
 }
 
 export const Canvas: React.FC<CanvasProps> = (props) => {
-  const { entities, placeEntity, selectedToolId } = props;
+  const { entities, placeEntity, selectedToolId, setEntities } = props;
+
+  const { setNodeRef } = useDroppable({
+    id: "unique-id",
+  });
 
   const onCanvasClick = (event: React.MouseEvent<HTMLDivElement>) => {
     event.stopPropagation();
@@ -35,26 +46,58 @@ export const Canvas: React.FC<CanvasProps> = (props) => {
     placeEntity(selectedToolId, positionRelativeToCanvas);
   };
 
+  function handleDragEnd(event: DragEndEvent) {
+    const { active, over } = event;
+
+    const theEntity = entities.find((entity) => entity.id === active.id);
+    if (!theEntity) {
+      return;
+    }
+    // theEntity.position.x = theEntity.position.x + event.delta.x;
+    // theEntity.position.y = theEntity.position.x + event.delta.y;
+    setEntities((prevEntities:Entity[]) => {
+      return prevEntities.map((entity) => {
+        if (entity.id === theEntity.id) {
+          return {
+            ...entity,
+            position: {
+              x: entity.position.x + event.delta.x,
+              y: entity.position.y + event.delta.y,
+            },
+          };
+        }
+        return entity;
+      });
+    }
+  }
+
   return (
-    <div
-      id={CANVAS_ID}
-      css={css`
-        border: 3px solid green;
-        overflow: hidden;
-        position: relative; // ancestor has position: relative, so all absolute positioned children are relative to this
-      `}
-      onClick={onCanvasClick}
-    >
-      <CanvasDotsGrid />
-      {entities.map((entity, index) => {
-        // TODO: change key to something other than index
-        return <DraggableEntity key={index} entity={entity} />;
-      })}
-    </div>
+    <DndContext onDragEnd={handleDragEnd}>
+      <div
+        ref={setNodeRef}
+        id={CANVAS_ID}
+        css={css`
+          border: 3px solid green;
+          overflow: hidden;
+          position: relative; // ancestor has position: relative, so all absolute positioned children are relative to this
+        `}
+        onClick={onCanvasClick}
+      >
+        <CanvasDotsGrid />
+        {entities.map((entity, index) => {
+          // TODO: change key to something other than index
+          return <DraggableEntity key={index} entity={entity} />;
+        })}
+      </div>
+    </DndContext>
   );
 };
 
 const DraggableEntity: React.FC<{ entity: Entity }> = ({ entity }) => {
+  const { attributes, listeners, setNodeRef } = useDraggable({
+    id: entity.id,
+  });
+
   const entityType = entityTypes[entity.toolId];
   const width = 80; // TODO: make those dynamic later
   const height = 80;
@@ -68,6 +111,9 @@ const DraggableEntity: React.FC<{ entity: Entity }> = ({ entity }) => {
         width: ${width}px;
         height: ${height}px;
       `}
+      ref={setNodeRef}
+      {...listeners}
+      {...attributes}
     >
       <img src={entityType.icon} alt={entityType.icon} />
     </div>
