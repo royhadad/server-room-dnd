@@ -47,26 +47,29 @@ export const Canvas: React.FC<CanvasProps> = (props) => {
     >
       <CanvasDotsGrid />
       {entities.map((entity, index) => {
-        const entityType = entityTypes[entity.toolId];
-        const width = 80; // TODO: make those dynamic later
-        const height = 80;
-
         // TODO: change key to something other than index
-        return (
-          <div
-            key={index}
-            css={css`
-              position: absolute;
-              left: ${entity.position.x - width / 2}px;
-              top: ${entity.position.y - height / 2}px;
-              width: ${width}px;
-              height: ${height}px;
-            `}
-          >
-            <img src={entityType.icon} alt={entityType.icon} />
-          </div>
-        );
+        return <DraggableEntity key={index} entity={entity} />;
       })}
+    </div>
+  );
+};
+
+const DraggableEntity: React.FC<{ entity: Entity }> = ({ entity }) => {
+  const entityType = entityTypes[entity.toolId];
+  const width = 80; // TODO: make those dynamic later
+  const height = 80;
+
+  return (
+    <div
+      css={css`
+        position: absolute;
+        left: ${entity.position.x - width / 2}px;
+        top: ${entity.position.y - height / 2}px;
+        width: ${width}px;
+        height: ${height}px;
+      `}
+    >
+      <img src={entityType.icon} alt={entityType.icon} />
     </div>
   );
 };
