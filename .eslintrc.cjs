@@ -19,6 +19,7 @@ module.exports = {
     ],
     "react/no-unknown-property": ["error", { ignore: ["css"] }],
     "react/prop-types": "off",
+    "@typescript-eslint/consistent-type-definitions": "off",
   },
   parserOptions: {
     ecmaVersion: "latest",
