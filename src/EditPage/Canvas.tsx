@@ -17,6 +17,23 @@ function roundToTheNearest10(value: number): number {
 export const Canvas: React.FC<CanvasProps> = (props) => {
   const { entities, placeEntity, selectedToolId } = props;
 
+  const onCanvasClick = (event: React.MouseEvent<HTMLDivElement>) => {
+    if (selectedToolId === null) {
+      return;
+    }
+    const canvasElement = document.getElementById(CANVAS_ID);
+    if (!canvasElement) {
+      return;
+    }
+
+    const canvasRect = canvasElement.getBoundingClientRect();
+    const positionRelativeToCanvas: Position = {
+      x: roundToTheNearest10(event.clientX - canvasRect.left),
+      y: roundToTheNearest10(event.clientY - canvasRect.top),
+    };
+    placeEntity(selectedToolId, positionRelativeToCanvas);
+  };
+
   return (
     <div
       id={CANVAS_ID}
@@ -25,28 +42,13 @@ export const Canvas: React.FC<CanvasProps> = (props) => {
         overflow: hidden;
         position: relative; // ancestor has position: relative, so all absolute positioned children are relative to this
       `}
-      onClick={(event) => {
-        if (selectedToolId === null) {
-          return;
-        }
-        const canvasElement = document.getElementById(CANVAS_ID);
-        if (!canvasElement) {
-          return;
-        }
-
-        const canvasRect = canvasElement.getBoundingClientRect();
-        const positionRelativeToCanvas: Position = {
-          x: roundToTheNearest10(event.clientX - canvasRect.left),
-          y: roundToTheNearest10(event.clientY - canvasRect.top),
-        };
-        placeEntity(selectedToolId, positionRelativeToCanvas);
-      }}
+      onClick={onCanvasClick}
     >
       <CanvasDotsGrid />
       {entities.map((entity, index) => {
         const entityType = entityTypes[entity.toolId];
-        const width = 80; // might be dynamic later
-        const height = 80; // might be dynamic later
+        const width = 80; // TODO: make those dynamic later
+        const height = 80;
 
         // TODO: change key to something other than index
         return (
