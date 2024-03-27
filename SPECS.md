@@ -28,3 +28,7 @@
 1. Should the entities be placed exactly where dropped? connected to a dot? rounded to the nearest 5 pixels? or whatever I decide?
 2. Do we expect other entities for the upcoming release? or just those 6?
 3. What items have a size? What items can be rotated?
+
+
+research: dnd-kit examples:
+https://master--5fc05e08a4a65d0021ae0bf2.chromatic.com/?path=/docs/core-draggable-hooks-usedraggable--basic-setup

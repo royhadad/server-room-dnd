@@ -1,6 +1,7 @@
 import { css } from "@emotion/react";
-import React from "react";
+import React, { PropsWithChildren } from "react";
 import { Entity, EntityTypeId, entityTypes, Position } from "./EditPage.tsx";
+import { DndContext, useDraggable } from "@dnd-kit/core";
 
 interface CanvasProps {
   selectedToolId: EntityTypeId | null;
@@ -36,40 +37,86 @@ export const Canvas: React.FC<CanvasProps> = (props) => {
   };
 
   return (
-    <div
-      id={CANVAS_ID}
-      css={css`
-        border: 3px solid green;
-        overflow: hidden;
-        position: relative; // ancestor has position: relative, so all absolute positioned children are relative to this
-      `}
-      onClick={onCanvasClick}
-    >
-      <CanvasDotsGrid />
-      {entities.map((entity, index) => {
-        const entityType = entityTypes[entity.toolId];
-        const width = 80; // TODO: make those dynamic later
-        const height = 80;
+    <DndContext>
+      <div
+        id={CANVAS_ID}
+        css={css`
+          border: 3px solid green;
+          overflow: hidden;
+          position: relative; // ancestor has position: relative, so all absolute positioned children are relative to this
+        `}
+        onClick={onCanvasClick}
+      >
+        <CanvasDotsGrid />
+        <MyDraggable />
+        <MyDraggable />
+        {entities.map((entity, index) => {
+          // TODO: change key to something other than index
+          return <DraggableEntity key={index} entity={entity} />;
+        })}
+      </div>
+    </DndContext>
+  );
+};
 
-        // TODO: change key to something other than index
-        return (
-          <div
-            key={index}
-            css={css`
-              position: absolute;
-              left: ${entity.position.x - width / 2}px;
-              top: ${entity.position.y - height / 2}px;
-              width: ${width}px;
-              height: ${height}px;
-            `}
-          >
-            <img src={entityType.icon} alt={entityType.icon} />
-          </div>
-        );
-      })}
+const DraggableEntity: React.FC<{ entity: Entity }> = ({ entity }) => {
+  const entityType = entityTypes[entity.toolId];
+  const width = 80; // TODO: make those dynamic later
+  const height = 80;
+
+  return (
+    <Draggable>
+      <div
+        css={css`
+          position: absolute;
+          left: ${entity.position.x - width / 2}px;
+          top: ${entity.position.y - height / 2}px;
+          width: ${width}px;
+          height: ${height}px;
+        `}
+      >
+        <img src={entityType.icon} alt={entityType.icon} />
+      </div>
+    </Draggable>
+  );
+};
+
+const Draggable: React.FC<PropsWithChildren> = ({ children }) => {
+  const { attributes, listeners, setNodeRef } = useDraggable({
+    id: "unique-id",
+  });
+
+  return (
+    <div ref={setNodeRef} {...listeners} {...attributes}>
+      {children}
     </div>
   );
 };
+
+function MyDraggable() {
+  const { attributes, listeners, setNodeRef } = useDraggable({
+    id: "unique-id2",
+  });
+
+  return (
+    <div ref={setNodeRef}>
+      <button
+        {...listeners}
+        {...attributes}
+        css={css`
+          background-color: red;
+          height: 100px;
+          width: 100px;
+        `}
+      >
+        Drag handle 1
+      </button>
+      <button {...listeners} {...attributes}>
+        Drag handle 2
+      </button>
+    </div>
+  );
+}
 
 // extracted the inner grid to memoize the rendering, due to a real life *measured* performance problem
 // consider changing this to an SVG or something else instead of an array of divs, for an additional performance improvement
