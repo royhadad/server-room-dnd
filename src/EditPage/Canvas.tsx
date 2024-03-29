@@ -117,8 +117,8 @@ const DraggableEntity: React.FC<{ entity: Entity }> = ({ entity }) => {
       ref={setNodeRef}
       css={css`
         position: absolute;
-        left: ${entity.position.x}px;
-        top: ${entity.position.y}px;
+        left: ${entity.position.x - width / 2}px;
+        top: ${entity.position.y - height / 2}px;
         width: ${width}px;
         height: ${height}px;
       `}
