@@ -57,7 +57,7 @@ export const Canvas: React.FC<CanvasProps> = (props) => {
     <DndContext
       sensors={sensors}
       onDragEnd={(event) => {
-        const currentEntity = event.active.data?.current?.entity as Entity;
+        const currentEntity = event.active.data?.current?.entity as Entity; // TODO fix types here
         setEntities((prevEntities) => {
           const newEntities = [...prevEntities];
           const entityIndex = newEntities.findIndex(
@@ -104,7 +104,6 @@ const DraggableEntity: React.FC<{ entity: Entity }> = ({ entity }) => {
     id: entity.entityUniqueId,
     data: { entity },
   });
-  console.log(transform);
   const style = {
     transform: CSS.Translate.toString(transform),
   };
@@ -142,6 +141,7 @@ const CanvasDotsGridWithoutMemo: React.FC = () => {
         overflow: auto;
       `}
     >
+      {/* TODO make grid bigger then screen (and scrollable) + position entities relative to canvas instead of screen  */}
       <svg width="100%" height="1000px">
         <pattern
           id="pattern-circles"
