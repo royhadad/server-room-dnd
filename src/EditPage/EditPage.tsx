@@ -60,7 +60,9 @@ export type Entity = {
 export type Position = { x: number; y: number };
 
 export const EditPage: React.FC = () => {
-  const [selectedToolId, setSelectedToolId] = useState<string | null>(null);
+  const [selectedToolId, setSelectedToolId] = useState<EntityTypeId | null>(
+    null,
+  );
   const [entities, setEntities] = useState<Entity[]>([]);
 
   const placeEntity = (

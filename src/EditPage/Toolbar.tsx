@@ -2,10 +2,11 @@ import React from "react";
 import { css } from "@emotion/react";
 import serverRackIcon from "../assets/server-rack-icon.svg";
 import { Tooltip, Button } from "@mui/material";
+import { EntityTypeId } from "./EditPage.tsx";
 
 interface ToolbarProps {
-  selectedToolId: string | null;
-  setSelectedToolId: (toolId: string | null) => void;
+  selectedToolId: EntityTypeId | null;
+  setSelectedToolId: (toolId: EntityTypeId | null) => void;
 }
 
 export const Toolbar: React.FC<ToolbarProps> = (props) => {
@@ -68,11 +69,11 @@ export const Toolbar: React.FC<ToolbarProps> = (props) => {
 };
 
 interface ToolItemProps {
-  id: string;
+  id: EntityTypeId;
   name: string;
   icon: string;
-  selectedToolId: string | null;
-  setSelectedToolId: (toolId: string | null) => void;
+  selectedToolId: EntityTypeId | null;
+  setSelectedToolId: (toolId: EntityTypeId | null) => void;
 }
 const ToolItem: React.FC<ToolItemProps> = (props) => {
   const isSelected = props.id === props.selectedToolId;

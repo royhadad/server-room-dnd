@@ -1,17 +1,18 @@
 # Server room Drag & Drop
 
 ## Specs general outline:
+
 1. Left side - toolbar with entities (and possibly other tools)
 2. Right side - editing canvas (grid)
 3. Click on an entity/tool - entity is selected
 4. Click on the canvas - selected entity is placed
 5. Tools list:
-    - Wall
-    - Window
-    - Door
-    - Full Cabinet
-    - Half Cabinet
-    - Quarter Cabinet
+   - Wall
+   - Window
+   - Door
+   - Full Cabinet
+   - Half Cabinet
+   - Quarter Cabinet
 6. The canvas should contain rooms, and each cabinet should belong to a room
 7. Wall should be resizable
 8. Items can be rotated
@@ -25,6 +26,7 @@
 14. Every edit to the canvas should be saved to the backend via an API call (contract TBD, flexible)
 
 ## questions for PM:
+
 1. Should the entities be placed exactly where dropped? connected to a dot? rounded to the nearest 5 pixels? or whatever I decide?
 2. Do we expect other entities for the upcoming release? or just those 6?
 3. What items have a size? What items can be rotated?

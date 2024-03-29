@@ -13,8 +13,6 @@
   -moz-osx-font-smoothing: grayscale;
 }
 
-
-
 /*** The new CSS Reset - version 1.2.0 (last updated 23.7.2021) ***/
 
 /* Remove all the styles of the "User-Agent-Stylesheet", except for the 'display' property */
@@ -34,7 +32,8 @@
   Remove list styles (bullets/numbers)
   in case you use it with normalize.css
 */
-ol, ul {
+ol,
+ul {
   list-style: none;
 }
 
