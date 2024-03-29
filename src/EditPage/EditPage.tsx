@@ -52,6 +52,7 @@ export const entityTypes: Record<EntityTypeId, EntityType> = {
 };
 
 export type Entity = {
+  entityUniqueId: string;
   toolId: EntityTypeId;
   position: Position; // the top-left corner of the entity
   // dimensions: { width: number; height: number }; // TODO: add this later
@@ -72,6 +73,7 @@ export const EditPage: React.FC = () => {
     setEntities((prevEntities) => [
       ...prevEntities,
       {
+        entityUniqueId: Math.random().toString(),
         toolId: entityTypeId,
         position,
       },
@@ -103,6 +105,7 @@ export const EditPage: React.FC = () => {
         selectedToolId={selectedToolId}
         placeEntity={placeEntity}
         entities={entities}
+        setEntities={setEntities}
       />
     </div>
   );

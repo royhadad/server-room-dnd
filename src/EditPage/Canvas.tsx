@@ -1,21 +1,32 @@
 import { css } from "@emotion/react";
 import React from "react";
 import { Entity, EntityTypeId, entityTypes, Position } from "./EditPage.tsx";
+import {
+  DndContext,
+  MouseSensor,
+  useDraggable,
+  useDroppable,
+  useSensor,
+  useSensors,
+} from "@dnd-kit/core";
+import { CSS } from "@dnd-kit/utilities";
 
 interface CanvasProps {
   selectedToolId: EntityTypeId | null;
   placeEntity: (entityTypeId: EntityTypeId, position: Position) => void;
   entities: Entity[];
+  setEntities: React.Dispatch<React.SetStateAction<Entity[]>>;
 }
 
 const CANVAS_ID = "server_room_canvas_element_id";
 
 function roundToTheNearest10(value: number): number {
-  return Math.round(value / 10) * 10;
+  const ROUNDING_VALUE = 10;
+  return Math.round(value / ROUNDING_VALUE) * ROUNDING_VALUE;
 }
 
 export const Canvas: React.FC<CanvasProps> = (props) => {
-  const { entities, placeEntity, selectedToolId } = props;
+  const { entities, placeEntity, selectedToolId, setEntities } = props;
 
   const onCanvasClick = (event: React.MouseEvent<HTMLDivElement>) => {
     event.stopPropagation();
@@ -35,92 +46,130 @@ export const Canvas: React.FC<CanvasProps> = (props) => {
     placeEntity(selectedToolId, positionRelativeToCanvas);
   };
 
+  const { setNodeRef } = useDroppable({
+    id: CANVAS_ID,
+  });
+
+  const mouseSensor = useSensor(MouseSensor, {});
+  const sensors = useSensors(mouseSensor);
+
   return (
-    <div
-      id={CANVAS_ID}
-      css={css`
-        border: 3px solid green;
-        overflow: hidden;
-        position: relative; // ancestor has position: relative, so all absolute positioned children are relative to this
-      `}
-      onClick={onCanvasClick}
+    <DndContext
+      sensors={sensors}
+      onDragEnd={(event) => {
+        const currentEntity = event.active.data?.current?.entity as Entity;
+        setEntities((prevEntities) => {
+          const newEntities = [...prevEntities];
+          const entityIndex = newEntities.findIndex(
+            (entity) => entity.entityUniqueId === currentEntity.entityUniqueId,
+          );
+          if (entityIndex === -1) {
+            return prevEntities;
+          }
+          newEntities[entityIndex] = {
+            ...newEntities[entityIndex],
+            position: {
+              x: roundToTheNearest10(currentEntity.position.x + event.delta.x),
+              y: roundToTheNearest10(currentEntity.position.y + event.delta.y),
+            },
+          };
+          return newEntities;
+        });
+      }}
     >
-      <CanvasDotsGrid />
-      {entities.map((entity, index) => {
-        // TODO: change key to something other than index
-        return <DraggableEntity key={index} entity={entity} />;
-      })}
-    </div>
+      <div
+        ref={setNodeRef}
+        id={CANVAS_ID}
+        css={css`
+          border: 3px solid green;
+          overflow: hidden;
+          position: relative; // ancestor has position: relative, so all absolute positioned children are relative to this
+          width: 100%;
+          height: 100%;
+        `}
+        onClick={onCanvasClick}
+      >
+        <CanvasDotsGrid />
+        {entities.map((entity, index) => {
+          // TODO: change key to something other than index
+          return <DraggableEntity key={index} entity={entity} />;
+        })}
+      </div>
+    </DndContext>
   );
 };
 
 const DraggableEntity: React.FC<{ entity: Entity }> = ({ entity }) => {
+  const { attributes, listeners, setNodeRef, transform } = useDraggable({
+    id: entity.entityUniqueId,
+    data: { entity },
+  });
+  console.log(transform);
+  const style = {
+    transform: CSS.Translate.toString(transform),
+  };
+
   const entityType = entityTypes[entity.toolId];
   const width = 80; // TODO: make those dynamic later
   const height = 80;
 
   return (
     <div
+      ref={setNodeRef}
       css={css`
         position: absolute;
-        left: ${entity.position.x - width / 2}px;
-        top: ${entity.position.y - height / 2}px;
+        left: ${entity.position.x}px;
+        top: ${entity.position.y}px;
         width: ${width}px;
         height: ${height}px;
       `}
+      style={style}
+      {...listeners}
+      {...attributes}
     >
       <img src={entityType.icon} alt={entityType.icon} />
     </div>
   );
 };
 
-// extracted the inner grid to memoize the rendering, due to a real life *measured* performance problem
-// TODO: change this to an SVG or something else instead of an array of divs, for an additional performance improvement
-
-const NUMBER_OF_DOTS = 100;
 const GAP_BETWEEN_DOTS_IN_PIXELS = 40;
-const ARRAY_WITH_LENGTH_NUMBER_OF_DOTS = Array.from({ length: NUMBER_OF_DOTS });
+const DOT_RADIUS_IN_PIXELS = 2.5;
 
 const CanvasDotsGridWithoutMemo: React.FC = () => {
   return (
     <div
       css={css`
-        width: 100%;
-        height: 100%;
         overflow: auto;
-        display: grid;
-        grid-template-rows: repeat(
-          ${NUMBER_OF_DOTS},
-          ${GAP_BETWEEN_DOTS_IN_PIXELS}px
-        );
       `}
     >
-      {ARRAY_WITH_LENGTH_NUMBER_OF_DOTS.map((_, rowIndex) => (
-        <div
-          key={rowIndex}
-          css={css`
-            display: grid;
-            grid-template-columns: repeat(
-              ${NUMBER_OF_DOTS},
-              ${GAP_BETWEEN_DOTS_IN_PIXELS}px
-            );
-          `}
+      <svg width="100%" height="1000px">
+        <pattern
+          id="pattern-circles"
+          x="0"
+          y="0"
+          width={GAP_BETWEEN_DOTS_IN_PIXELS}
+          height={GAP_BETWEEN_DOTS_IN_PIXELS}
+          patternUnits="userSpaceOnUse"
+          patternContentUnits="userSpaceOnUse"
         >
-          {ARRAY_WITH_LENGTH_NUMBER_OF_DOTS.map((_, columnIndex) => (
-            <div
-              key={columnIndex}
-              css={css`
-                font-size: 24px;
-                color: #999999;
-                cursor: default;
-                user-select: none;
-              `}
-            >
-              •
-            </div>
-          ))}
-        </div>
-      ))}
+          <circle
+            id="pattern-circle"
+            cx={GAP_BETWEEN_DOTS_IN_PIXELS / 2}
+            cy={GAP_BETWEEN_DOTS_IN_PIXELS / 2}
+            r={DOT_RADIUS_IN_PIXELS}
+            fill="#999999"
+          ></circle>
+        </pattern>
+
+        <rect
+          id="rect"
+          x="0"
+          y="0"
+          width="100%"
+          height="100%"
+          fill="url(#pattern-circles)"
+        ></rect>
+      </svg>
     </div>
   );
 };
